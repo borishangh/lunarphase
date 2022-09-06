@@ -1,48 +1,41 @@
-const getJulianDate = () => {
-    date = new Date()
-    const time = date.getTime();
-    const tzoffset = date.getTimezoneOffset()
+console.log(getLunarAgeFraction())
 
-    return (time / 86400000) - (tzoffset / 1440) + 2440587.5;
+
+function getJulianDate() {
+    let date = new Date();
+    let tmzOffset = date.getTimezoneOffset()
+        / 1440; // minutes in a day;
+    let julianDay =
+        ~~((date.getTime() / 86400000)
+            - tmzOffset + 2440587.5);
+
+    return julianDay;
 }
 
-const LUNAR_MONTH = 29.530588853;
+function getLunarAgeFraction() {
+    const LUNAR_MONTH = 29.53059;
 
-const getLunarAge = () => {
-    const percent = getLunarAgePercent();
-    const age = percent * LUNAR_MONTH;
-    return age;
-}
-const getLunarAgePercent = () => {
-    return normalize((getJulianDate() - 2451550.3) / LUNAR_MONTH);
+    let daysSinceNewMoon = getJulianDate() - 2459581.68;
+    let lunarAge = daysSinceNewMoon % LUNAR_MONTH;
+
+    return lunarAge / LUNAR_MONTH;
 }
 
+getFrame(getLunarAgeFraction());
 
-const normalize = value => {
-    value = value - Math.floor(value);
-    if (value < 0)
-        value = value + 1
-    return value;
-}
+function getFrame(fraction) {
 
-
-getclip(getLunarAge())
-
-function getclip(lunarAge) {
-    let videoDuration = 23.786646;
-
+    // setup video
     let video = document.createElement('video');
     let source = document.createElement('source');
     source.src = 'moon.mp4'
     video.appendChild(source);
 
-
+    //setup canvas
     let canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
 
-    let time = (lunarAge / LUNAR_MONTH) * videoDuration;
-
-    video.currentTime = time;
+    video.currentTime = fraction * 23.786646;
 
     video.onloadeddata = () => {
         let w = video.videoWidth,
@@ -55,9 +48,8 @@ function getclip(lunarAge) {
         ctx.drawImage(video, (h - w) / 2, 0, w, h);
 
         let dataURI = canvas.toDataURL('image/jpeg');
-        let img = document.createElement('img');
+        let img = document.getElementById('moon-img');
 
         img.src = dataURI;
-        document.body.appendChild(img);
     }
 }
