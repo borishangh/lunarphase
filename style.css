@@ -14,5 +14,6 @@ body{
 }
 
 #moon-img {
+    filter: grayscale(1);
     width: min(600px, 90vw);
 }
